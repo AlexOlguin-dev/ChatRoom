@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set, onValue, onDisconnect } from 'firebase/database'; // Importar onDisconnect
+import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'firebase/database'; // Importar 'remove'
 
 // Tu configuración de Firebase (copiada directamente de la consola de Firebase)
 const firebaseConfig = {
@@ -19,4 +19,4 @@ const app = initializeApp(firebaseConfig);
 // Inicialización de la base de datos en tiempo real
 const db = getDatabase(app);
 
-export { db, ref, set, onValue, onDisconnect }; // Ahora se exporta onDisconnect
+export { db, ref, set, onValue, onDisconnect, remove }; // Ahora se exporta 'remove'

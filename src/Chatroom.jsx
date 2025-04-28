@@ -3,6 +3,7 @@ import { db, ref, set, onValue, remove, onDisconnect } from './firebase';
 import { AppBar, Toolbar, Typography, IconButton, Box, Modal, TextField, InputAdornment, Button, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import MenuIcon from '@mui/icons-material/Menu';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Ninja from './assets/img/icon.png';
 
 const Chatroom = () => {
@@ -78,6 +79,11 @@ const Chatroom = () => {
     }
   };
 
+  const deleteMessage = (messageId) => {
+    const messageRef = ref(db, 'messages/' + messageId);
+    remove(messageRef);
+  };
+
   return (
     <Box sx={{ backgroundColor: '#e8f5e9', minHeight: '100vh' }}>
       <div style={{ filter: modalOpen ? 'blur(8px)' : 'none', transition: 'filter 0.3s ease', minHeight: '100vh', position: 'relative', paddingBottom: '80px' }}>
@@ -87,9 +93,7 @@ const Chatroom = () => {
             <IconButton edge="start" color="inherit" aria-label="menu" onClick={() => setDrawerOpen(true)}>
               <MenuIcon />
             </IconButton>
-            <IconButton edge="start" color="inherit" aria-label="icon" sx={{ ml: 1 }}>
-              <img src={Ninja} alt="Chatroom Icon" style={{ width: 30, height: 30, marginRight: 8 }} />
-            </IconButton>
+            <img src={Ninja} alt="Chatroom Icon" style={{ width: 30, height: 30, marginRight: 8, marginLeft: 4 }} />
             <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
               Chatroom Test
             </Typography>
@@ -98,11 +102,7 @@ const Chatroom = () => {
 
         {/* Barra gris debajo del AppBar */}
         {!modalOpen && (
-          <Box
-            sx={{
-              backgroundColor: '#f0f0f0',
-              padding: '8px 16px',
-              borderBottom: '1px solid #ccc' }}>
+          <Box sx={{ backgroundColor: '#f0f0f0', padding: '8px 16px', borderBottom: '1px solid #ccc' }}>
             <Typography variant="subtitle1" color="textSecondary">
               Usuario: {username}
             </Typography>
@@ -112,34 +112,24 @@ const Chatroom = () => {
         {/* Mensajes */}
         <Box p={2} sx={{ paddingBottom: '100px' }}>
           {messages.map((msg) => (
-            <Box
-              key={msg.id}
-              sx={{ backgroundColor: '#d0ebd0', padding: 2, marginBottom: 2, borderRadius: 2, boxShadow: 3 }}
-            >
+            <Box key={msg.id} sx={{ backgroundColor: '#d0ebd0', padding: 2, marginBottom: 2, borderRadius: 2, boxShadow: 3, position: 'relative', paddingBottom: 8 }}>
               <Typography variant="subtitle2" fontWeight="bold" fontSize={15} gutterBottom>
                 {msg.username}
               </Typography>
               <Typography variant="body1" fontSize={20}>
                 {msg.message}
               </Typography>
+              {msg.username === username && ( // Solo mostrar el botón si el mensaje es del usuario actual
+                <IconButton onClick={() => deleteMessage(msg.id)} sx={{ position: 'absolute', bottom: 8, right: 8, color: 'black', backgroundColor: 'white', '&:hover': { backgroundColor: '#f0f0f0' } }}>
+                  <DeleteIcon />
+                </IconButton>
+              )}
             </Box>
           ))}
         </Box>
 
         {/* Input de nuevo mensaje fijo abajo */}
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            backgroundColor: 'white',
-            borderTop: '1px solid #ccc',
-            padding: '8px',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
+        <Box sx={{ position: 'fixed', bottom: 0, left: 0, width: '100%', backgroundColor: 'white', borderTop: '1px solid #ccc', padding: '8px', display: 'flex', alignItems: 'center' }}>
           <TextField
             fullWidth
             placeholder="Escribe un mensaje"
@@ -160,42 +150,15 @@ const Chatroom = () => {
 
         {/* Modal de bienvenida */}
         <Modal open={modalOpen}>
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 350,
-              bgcolor: 'background.paper',
-              borderRadius: 2,
-              boxShadow: 24,
-              p: 4,
-              textAlign: 'center',
-            }}
-          >
+          <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 350, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 4, textAlign: 'center' }}>
             <Typography variant="h5" component="h2" mb={1}>
               Bienvenido al chat público
             </Typography>
             <Typography variant="body2" color="textSecondary" mb={3}>
               Escribe tu nombre para chatear
             </Typography>
-            <TextField
-              value={tempUsername}
-              onChange={(e) => setTempUsername(e.target.value)}
-              label="Nombre de usuario"
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-            <Button
-              variant="contained"
-              onClick={handleUsernameSubmit}
-              fullWidth
-              sx={{
-                backgroundColor: '#7CB89C',
-                '&:hover': { backgroundColor: '#68A78B' },
-              }}
-            >
+            <TextField value={tempUsername} onChange={(e) => setTempUsername(e.target.value)} label="Nombre de usuario" fullWidth sx={{ mb: 2 }} />
+            <Button variant="contained" onClick={handleUsernameSubmit} fullWidth sx={{ backgroundColor: '#7CB89C', '&:hover': { backgroundColor: '#68A78B' } }}>
               Confirmar
             </Button>
           </Box>
@@ -203,14 +166,7 @@ const Chatroom = () => {
 
         {/* Drawer lateral de usuarios conectados */}
         <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-          <Box
-            sx={{
-              width: 250,
-              backgroundColor: '#5C9C7C',
-              height: '100%',
-              color: 'white',
-            }}
-          >
+          <Box sx={{ width: 250, backgroundColor: '#5C9C7C', height: '100%', color: 'white' }}>
             <Typography variant="h6" sx={{ p: 2 }}>
               Usuarios conectados
             </Typography>
